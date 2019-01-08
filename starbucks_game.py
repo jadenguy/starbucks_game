@@ -5,7 +5,7 @@ from typing import Dict
 
 
 class badgeBoard(object):
-    def __init__(self, name: str, columns: int, winPool: int, seed: float):
+    def __init__(self, name: str, columns: int, winPool: int, seed: float) -> None:
         self.name = name
         self.r = random.Random(seed)
         self.columnCount: int = columns
@@ -50,7 +50,7 @@ class badgeBoard(object):
 
 
 class fullGame(object):
-    def __init__(self, gameCount: int, badgeCount: int, winOutOf: int):
+    def __init__(self, gameCount: int, badgeCount: int, winOutOf: int) -> None:
         self.gameCount = gameCount
         self.games: List[badgeBoard] = []
         self.repeats = 0
@@ -68,7 +68,7 @@ class fullGame(object):
             ret += "\n"
         return ret
 
-    def play(self):
+    def play(self) -> bool:
         selection: int = self.r.randint(1, self.gameCount) - 1
         ret: bool = False
         self.coffees += 1
