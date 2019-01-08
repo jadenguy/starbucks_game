@@ -6,6 +6,7 @@ from typing import Dict
 
 class badgeBoard(object):
     def __init__(self, name: str, columns: int, winPool: int, seed: float):
+        self.name = name
         self.r = random.Random(seed)
         self.columnCount: int = columns
         values: List[int] = list(range(columns))
@@ -25,11 +26,13 @@ class badgeBoard(object):
                 # columnBadge = str(self.columns[x])
                 columnBadge = "X"
             ret += "[%s]" % (columnBadge)
+        ret += " " + self.name
+        if (self.finished()):
+            ret += " Winner"
         return ret
 
     def finished(self)-> bool:
-        badges: int = min(self.columns.values())
-        fullSheet: bool = (badges != 0)
+        fullSheet: bool = (min(self.columns.values()) != 0)
         return fullSheet
 
     def play(self)-> int:
@@ -46,22 +49,53 @@ class badgeBoard(object):
         return ret
 
 
-seed: float = random.random()
-game: badgeBoard = badgeBoard('game', 50, 1000, seed)
+class fullGame(object):
+    def __init__(self, gameCount: int, badgeCount: int, winOutOf: int):
+        self.gameCount = gameCount
+        self.games: List[badgeBoard] = []
+        self.repeats = 0
+        self.freeGames = 0
+        self.coffees = 0
+        self.r = random.Random()
+        for x in range(gameCount):
+            self.games.append(badgeBoard(
+                "Board "+str(x+1), badgeCount, winOutOf, self.r.random()))
+
+    def __repr__(self) -> str:
+        ret: str = ""
+        for x in self.games:
+            ret += str(x)
+            ret += "\n"
+        return ret
+
+    def play(self):
+        selection: int = self.r.randint(1, self.gameCount) - 1
+        ret: bool = False
+        self.coffees += 1
+        if(self.games[selection].play() == 0):
+            title: str = str(self.coffees) + " coffees"
+            if (self.freeGames > 0):
+                title += " and " + str(self.freeGames) + " free games"
+                title += " in"
+            print(title)
+            print(self)
+            if (self.games[selection].finished()):
+                ret = True
+        else:
+            self.repeats += 1
+            if (self.repeats == 3):
+                self.repeats = 0
+                self.freeGames += 1
+                self.coffees -= 1
+        return ret
+
+
 i: int = 0
 freePlay: int = 0
 freePlayCounter: int = 0
 keepPlaying: bool = True
-print(game, i, freePlayCounter)
-while (keepPlaying):
-    i += 1
-    if(game.play() == 0):
-        print(game, i, freePlayCounter)
-        pass
-    else:
-        freePlay += 1
-        if (freePlay == 3):
-            i -= 1
-            freePlay = 0
-            freePlayCounter += 1
-    keepPlaying = (not game.finished())
+seed: float = random.random()
+game: fullGame = fullGame(10, 3, 1000)
+while (not game.play()):
+    # print(game)
+    pass
